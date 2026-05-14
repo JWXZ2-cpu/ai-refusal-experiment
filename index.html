@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>应该如何说"不" | 交互式分析实验</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Serif+SC:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg:#080808;--surface:#111;--surface-2:#1a1a1a;--surface-3:#222;
+    --accent:#c8a432;--accent-dim:rgba(200,164,50,.08);
+    --text-1:#e8e4dc;--text-2:#a09a90;--text-3:#5c5850;
+    --border:#222018;--border-light:#302c24;
+    --s1:#5b8db8;--s2:#6b9b7a;--s3:#c8a432;--s4:#9b7ebd;--s5:#c76666;
+    --dim-c:#5b8db8;--dim-e:#6b9b7a;--dim-k:#c8a432;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text-1);font-family:'Noto Serif SC',Georgia,serif;font-weight:400;line-height:1.8;min-height:100vh;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)'/%3E%3C/svg%3E");pointer-events:none;z-index:9999}
+.container{max-width:780px;margin:0 auto;padding:0 24px}
+.container-wide{max-width:920px;margin:0 auto;padding:0 24px}
+
+/* Views */
+.view{display:none;min-height:100vh;padding-bottom:100px}
+.view.active{display:block}
+
+/* Landing */
+#landing{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;text-align:center;position:relative}
+#landing.active{display:flex}
+.landing-bg-char{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);font-family:'Noto Serif SC',serif;font-size:clamp(200px,35vw,400px);font-weight:700;color:rgba(200,164,50,.04);pointer-events:none;user-select:none;line-height:1;animation:bgPulse 6s ease-in-out infinite}
+@keyframes bgPulse{0%,100%{opacity:.04}50%{opacity:.065}}
+.landing-content{position:relative;z-index:1;animation:fadeIn .8s ease forwards;opacity:0}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.landing-overline{font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:24px}
+.landing-title{font-size:clamp(32px,6vw,52px);font-weight:700;line-height:1.3;margin-bottom:8px}
+.landing-title em{font-style:normal;color:var(--accent)}
+.landing-en{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,2.5vw,22px);font-weight:300;font-style:italic;color:var(--text-3);margin-bottom:40px;letter-spacing:.05em}
+.landing-desc{max-width:520px;margin:0 auto 40px;font-size:15px;color:var(--text-2);line-height:2}
+.landing-quote{max-width:480px;margin:0 auto 48px;padding:20px 24px;border-left:2px solid var(--accent);text-align:left;font-size:14px;color:var(--text-2);line-height:1.9;background:var(--accent-dim);border-radius:0 4px 4px 0}
+.landing-quote strong{color:var(--text-1);font-weight:500}
+
+/* Mode Cards */
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:560px;width:100%;margin:0 auto;position:relative;z-index:1}
+.mode-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:28px 24px;cursor:pointer;transition:all .3s ease;text-align:left;position:relative;overflow:hidden;opacity:0;animation:cardUp .5s ease forwards}
+.mode-card:nth-child(1){animation-delay:.6s}
+.mode-card:nth-child(2){animation-delay:.7s}
+.mode-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:0;transition:opacity .3s ease}
+.mode-card:hover{border-color:var(--border-light);background:var(--surface-2);transform:translateY(-2px)}
+.mode-card:hover::before{opacity:1}
+.mode-label{font-size:11px;color:var(--accent);font-family:'Cormorant Garamond',serif;letter-spacing:.15em;text-transform:uppercase;margin-bottom:12px}
+.mode-title{font-size:18px;font-weight:600;margin-bottom:10px;line-height:1.4}
+.mode-desc{font-size:13px;color:var(--text-2);line-height:1.8;margin-bottom:16px}
+.mode-cta{font-size:13px;color:var(--accent);font-family:'Cormorant Garamond',serif;letter-spacing:.1em;display:flex;align-items:center;gap:6px}
+.mode-cta .arr{transition:transform .3s ease}
+.mode-card:hover .mode-cta .arr{transform:translateX(4px)}
+.landing-footer{position:absolute;bottom:32px;font-size:12px;color:var(--text-3);font-family:'Cormorant Garamond',serif;letter-spacing:.1em}
+
+/* Nav Header */
+.nav-header{padding:20px 0;position:sticky;top:0;background:rgba(8,8,8,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:100;border-bottom:1px solid var(--border)}
+.nav-header .container{display:flex;align-items:center}
+.back-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:var(--text-2);font-family:'Noto Serif SC',serif;font-size:13px;cursor:pointer;transition:color .2s;padding:4px 0}
+.back-btn:hover{color:var(--text-1)}
+.nav-ind{margin-left:auto;font-size:12px;color:var(--text-3);font-family:'Cormorant Garamond',serif;letter-spacing:.08em}
+
+/* Shared Components */
+@keyframes cardUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.section-header{padding:48px 0 32px}
+.section-header h2{font-size:clamp(24px,4vw,32px);font-weight:600;margin-bottom:8px;line-height:1.4}
+.section-header p{font-size:14px;color:var(--text-2);line-height:1.8}
+
+/* Buttons */
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:'Noto Serif SC',serif;font-size:14px;font-weight:500;cursor:pointer;border-radius:2px;transition:all .3s ease;letter-spacing:.05em}
+.btn-primary:hover{background:var(--accent);color:var(--bg)}
+.btn-primary .arr{font-family:'Cormorant Garamond',serif;font-size:17px;transition:transform .3s ease}
+.btn-primary:hover .arr{transform:translateX(4px)}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:transparent;border:1px solid var(--border-light);color:var(--text-2);font-family:'Noto Serif SC',serif;font-size:14px;font-weight:500;cursor:pointer;border-radius:2px;transition:all .3s ease;letter-spacing:.05em}
+.btn-secondary:hover{background:var(--surface-2);color:var(--text-1);border-color:var(--text-3)}
+
+/* Scenario Grid */
+.scenario-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;padding-bottom:40px}
+.scenario-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:24px;cursor:pointer;transition:all .3s;opacity:0;animation:cardUp .5s ease forwards;position:relative;overflow:hidden}
+.scenario-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:0;transition:opacity .3s}
+.scenario-card:nth-child(1){animation-delay:.05s}.scenario-card:nth-child(2){animation-delay:.1s}.scenario-card:nth-child(3){animation-delay:.15s}.scenario-card:nth-child(4){animation-delay:.2s}.scenario-card:nth-child(5){animation-delay:.25s}.scenario-card:nth-child(6){animation-delay:.3s}
+.scenario-card:hover{border-color:var(--border-light);background:var(--surface-2);transform:translateY(-2px)}
+.scenario-card:hover::before{opacity:1}
+.scenario-card.viewed::after{content:'已浏览';position:absolute;top:12px;right:12px;font-size:11px;color:var(--accent);font-family:'Cormorant Garamond',serif;letter-spacing:.05em}
+.sc-cat{font-size:11px;color:var(--text-3);font-family:'Cormorant Garamond',serif;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
+.sc-req{font-size:15px;color:var(--text-1);line-height:1.7}
+.sc-req::before{content:'\201C'}.sc-req::after{content:'\201D'}
+
+/* Strategies */
+.strat-ctx{padding:40px 0 24px;border-bottom:1px solid var(--border);margin-bottom:32px}
+.strat-cat{font-size:12px;color:var(--accent);font-family:'Cormorant Garamond',serif;letter-spacing:.15em;text-transform:uppercase;margin-bottom:12px}
+.strat-req{font-size:clamp(18px,3vw,24px);font-weight:500;line-height:1.5}
+.strat-req::before{content:'\201C';color:var(--accent)}.strat-req::after{content:'\201D';color:var(--accent)}
+.strat-label{font-size:12px;color:var(--text-3);margin:32px 0 20px;font-family:'Cormorant Garamond',serif;letter-spacing:.1em;text-transform:uppercase}
+.strat-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:28px;margin-bottom:20px;opacity:0;transform:translateY(16px);position:relative;overflow:hidden}
+.strat-card.in{animation:cardUp .5s ease forwards}
+.strat-card:nth-child(1).in{animation-delay:.05s}.strat-card:nth-child(2).in{animation-delay:.12s}.strat-card:nth-child(3).in{animation-delay:.19s}.strat-card:nth-child(4).in{animation-delay:.26s}.strat-card:nth-child(5).in{animation-delay:.33s}
+.strat-card.sycophantic{border-style:dashed;border-color:rgba(199,102,102,.25);background:#131110}
+.strat-hdr{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.strat-num{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;line-height:1;min-width:36px}
+.strat-name{font-size:17px;font-weight:600}
+.badge{font-size:11px;padding:3px 10px;border-radius:2px;font-weight:500;letter-spacing:.05em;margin-left:auto}
+.resp-block{padding:20px;background:rgba(255,255,255,.02);border-radius:3px;margin-bottom:16px;font-size:15px;line-height:1.9;border-left:2px solid transparent}
+.resp-desc{font-size:13px;color:var(--text-3);margin-bottom:20px;padding-left:2px;line-height:1.7}
+.tags-row{display:flex;flex-wrap:wrap;gap:8px}
+.tag{display:inline-flex;align-items:center;padding:5px 14px;border:1px solid var(--border-light);border-radius:20px;font-size:12px;color:var(--text-3);cursor:pointer;transition:all .25s;user-select:none;line-height:1}
+.tag:hover{border-color:var(--text-3);color:var(--text-2)}
+.tag.active{border-color:transparent;color:#fff;font-weight:500}
+
+/* Framework */
+.fw-intro{padding:48px 0 24px}
+.fw-intro h2{font-size:clamp(24px,4vw,32px);font-weight:600;margin-bottom:8px}
+.fw-intro p{font-size:14px;color:var(--text-2)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:32px;padding:16px;background:var(--surface);border-radius:4px;border:1px solid var(--border)}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2)}
+.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.dim-sec{margin-bottom:40px;opacity:0;animation:cardUp .5s ease forwards}
+.dim-sec:nth-child(1){animation-delay:.1s}.dim-sec:nth-child(2){animation-delay:.2s}.dim-sec:nth-child(3){animation-delay:.3s}
+.dim-title{display:flex;align-items:baseline;gap:8px;margin-bottom:16px}
+.dim-title h3{font-size:18px;font-weight:600}
+.dim-title span{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:300;font-style:italic;color:var(--text-3)}
+.dim-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.dim-lbl{width:88px;font-size:12px;color:var(--text-2);text-align:right;flex-shrink:0;line-height:1.2}
+.dim-track{flex:1;height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden}
+.dim-fill{height:100%;border-radius:3px;transition:width 1s cubic-bezier(.25,.46,.45,.94);width:0}
+.dim-score{width:20px;font-size:12px;font-family:'Cormorant Garamond',serif;color:var(--text-3);text-align:right}
+.insight{margin-top:56px;padding:32px;background:var(--surface);border:1px solid var(--border);border-radius:4px;border-left:3px solid var(--accent);opacity:0;animation:cardUp .5s ease .5s forwards}
+.insight h3{font-size:16px;font-weight:600;margin-bottom:20px;color:var(--accent)}
+.insight p{font-size:14px;color:var(--text-2);line-height:2;margin-bottom:16px}
+.insight p:last-child{margin-bottom:0}
+.em{color:var(--text-1);font-weight:500}
+.fw-cross{margin-top:40px;padding:24px;text-align:center;border:1px dashed var(--border-light);border-radius:4px;opacity:0;animation:cardUp .5s ease .6s forwards}
+.fw-cross p{font-size:13px;color:var(--text-3);margin-bottom:16px}
+.fw-footer{margin-top:56px;padding-top:24px;border-top:1px solid var(--border);font-size:12px;color:var(--text-3);text-align:center;line-height:2}
+.fw-footer .nm{font-size:13px;color:var(--text-2);font-weight:500}
+
+/* Self-Check: Input */
+.sc-intro{padding:48px 0 8px}
+.sc-intro h2{font-size:clamp(24px,4vw,32px);font-weight:600;margin-bottom:8px}
+.sc-intro p{font-size:14px;color:var(--text-2);line-height:1.8}
+.sc-ta{width:100%;min-height:140px;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text-1);font-family:'Noto Serif SC',serif;font-size:15px;line-height:1.9;resize:vertical;transition:border-color .3s;margin:24px 0 8px}
+.sc-ta:focus{outline:none;border-color:var(--accent)}
+.sc-ta::placeholder{color:var(--text-3)}
+.sc-hint{font-size:12px;color:var(--text-3);margin-bottom:32px}
+.sc-ex{margin-bottom:32px}
+.sc-ex-label{font-size:12px;color:var(--text-3);font-family:'Cormorant Garamond',serif;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.sc-ex-btn{display:block;width:100%;text-align:left;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text-2);font-family:'Noto Serif SC',serif;font-size:13px;line-height:1.6;cursor:pointer;transition:all .25s;margin-bottom:8px}
+.sc-ex-btn:hover{border-color:var(--border-light);color:var(--text-1);background:var(--surface-2)}
+.sc-analyze{text-align:center;padding:16px 0 48px}
+
+/* Self-Check: Analysis */
+.sc-orig{padding:40px 0 24px;border-bottom:1px solid var(--border);margin-bottom:32px}
+.sc-orig-label{font-size:12px;color:var(--accent);font-family:'Cormorant Garamond',serif;letter-spacing:.15em;text-transform:uppercase;margin-bottom:12px}
+.sc-orig-text{font-size:16px;line-height:1.8;padding:20px;background:var(--surface);border-radius:4px;border:1px solid var(--border)}
+.sc-scores{margin-bottom:32px}
+.sc-scores-title{font-size:12px;color:var(--text-3);font-family:'Cormorant Garamond',serif;letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px}
+.sc-s-row{display:flex;align-items:center;gap:16px;margin-bottom:20px;opacity:0;animation:cardUp .5s ease forwards}
+.sc-s-row:nth-child(1){animation-delay:.1s}.sc-s-row:nth-child(2){animation-delay:.2s}.sc-s-row:nth-child(3){animation-delay:.3s}
+.sc-s-name{width:72px;font-size:14px;font-weight:500;flex-shrink:0}
+.sc-s-track{flex:1;height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden}
+.sc-s-fill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.25,.46,.45,.94);width:0}
+.sc-s-val{width:44px;text-align:right;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500}
+.sc-s-val small{font-size:12px;color:var(--text-3);font-weight:300}
+.sc-s-weak{font-size:11px;color:var(--s5);margin-left:8px;font-weight:500}
+.sc-diag{padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:4px;border-left:3px solid var(--accent);margin-bottom:32px;font-size:14px;color:var(--text-2);line-height:2;opacity:0;animation:cardUp .5s ease .4s forwards}
+.sc-diag strong{color:var(--text-1)}
+.sc-next{text-align:center;padding:24px 0 48px;opacity:0;animation:cardUp .5s ease .5s forwards}
+
+/* Self-Check: Philosophy */
+.sc-phil-intro{padding:40px 0 24px}
+.sc-phil-intro h2{font-size:clamp(22px,4vw,28px);font-weight:600;margin-bottom:8px}
+.sc-phil-intro p{font-size:14px;color:var(--text-2);line-height:1.8}
+.sc-dim-lbl{display:inline-block;font-size:12px;padding:3px 10px;border-radius:2px;font-weight:500;letter-spacing:.05em;margin-bottom:16px;margin-top:8px}
+.phil-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:28px;margin-bottom:16px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;opacity:0;animation:cardUp .5s ease forwards}
+.phil-card:nth-child(1){animation-delay:.1s}.phil-card:nth-child(2){animation-delay:.18s}.phil-card:nth-child(3){animation-delay:.26s}.phil-card:nth-child(4){animation-delay:.34s}
+.phil-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity .3s}
+.phil-card:hover{border-color:var(--border-light);background:var(--surface-2);transform:translateY(-1px)}
+.phil-card:hover::before{opacity:1}
+.phil-card.selected{border-color:var(--accent);background:var(--accent-dim)}
+.phil-card.selected::before{opacity:1;background:var(--accent)}
+.phil-nm{font-size:17px;font-weight:600;margin-bottom:4px}
+.phil-en{font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:400;font-style:italic;color:var(--text-3);margin-bottom:14px}
+.phil-desc{font-size:14px;color:var(--text-2);line-height:1.9;margin-bottom:12px}
+.phil-src{font-size:12px;color:var(--text-3);font-family:'Cormorant Garamond',serif;letter-spacing:.05em}
+.sc-gen{text-align:center;padding:32px 0 48px;opacity:0;animation:cardUp .5s ease .3s forwards}
+.sc-gen.hidden{display:none}
+
+/* Self-Check: Result */
+.sc-r-intro{padding:40px 0 24px}
+.sc-r-intro h2{font-size:clamp(22px,4vw,28px);font-weight:600;margin-bottom:8px}
+.sc-r-badge{display:inline-block;font-size:12px;padding:3px 12px;border-radius:2px;font-weight:500;letter-spacing:.05em;margin-top:8px}
+.sc-compare{margin:32px 0}
+.sc-cmp{margin-bottom:24px;opacity:0;animation:cardUp .5s ease forwards}
+.sc-cmp:nth-child(1){animation-delay:.1s}.sc-cmp:nth-child(2){animation-delay:.25s}
+.sc-cmp-label{font-size:12px;color:var(--text-3);font-family:'Cormorant Garamond',serif;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sc-cmp-label .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sc-cmp-text{padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:4px;font-size:15px;line-height:2}
+.sc-cmp-text.dimmed{color:var(--text-3);border-style:dashed}
+.sc-cmp-text.hl{border-color:var(--accent);border-left:3px solid var(--accent)}
+.sc-changes{margin:32px 0;opacity:0;animation:cardUp .5s ease .35s forwards}
+.sc-changes-title{font-size:12px;color:var(--text-3);font-family:'Cormorant Garamond',serif;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px}
+.sc-chg{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:14px;color:var(--text-2);line-height:1.7}
+.sc-chg .ck{color:var(--accent);font-size:14px;margin-top:3px;flex-shrink:0}
+.sc-ref{margin:32px 0;padding:24px;background:var(--accent-dim);border:1px solid var(--border);border-radius:4px;border-left:3px solid var(--accent);opacity:0;animation:cardUp .5s ease .45s forwards}
+.sc-ref h4{font-size:14px;font-weight:600;color:var(--accent);margin-bottom:8px}
+.sc-ref p{font-size:13px;color:var(--text-2);line-height:1.9}
+.sc-ref .src{font-size:12px;color:var(--text-3);font-family:'Cormorant Garamond',serif;margin-top:8px}
+.sc-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;padding:40px 0 48px;opacity:0;animation:cardUp .5s ease .5s forwards}
+
+@media(max-width:640px){
+    .scenario-grid{grid-template-columns:1fr;gap:12px}
+    .mode-cards{grid-template-columns:1fr;gap:12px}
+    .strat-card,.phil-card{padding:20px}
+    .strat-hdr{gap:8px}
+    .badge{margin-left:0;margin-top:4px}
+    .dim-lbl{width:68px;font-size:11px}
+    .insight,.sc-diag{padding:24px}
+    .landing-quote{margin-left:8px;margin-right:8px}
+    .sc-s-name{width:60px;font-size:13px}
+    .sc-s-val{font-size:18px}
+    .sc-actions{flex-direction:column;align-items:center}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ========== LANDING ========== -->
+<section id="landing" class="view active">
+    <div class="landing-bg-char" aria-hidden="true">不</div>
+    <div class="landing-content">
+        <div class="landing-overline">Interactive Analysis Experiment</div>
+        <h1 class="landing-title">如何说<em>"不"</em>？</h1>
+        <div class="landing-en">Ways to Say No?</div>
+        <p class="landing-desc">当我们必须拒绝对方时，怎样拒绝才对？<br>在这个实验中，你可以体验、分析、并改进自己的拒绝方式。</p>
+        <div class="landing-quote">
+            <strong>"我将稳稳地接住你的需求"</strong> ——这样的回应之所以被调侃，说明AI永远没有态度，只会接住你的需求。不过你是否想过一个严肃的问题：当我们不会拒绝时，我们和AI的区别是什么？<br>
+           你，真的会拒绝吗？来看看哲学家们如何表达自己的态度，或许会让你有所思考。
+        </div>
+    </div>
+    <div class="mode-cards">
+        <div class="mode-card" onclick="nav('scenarios')">
+            <div class="mode-label">Mode A</div>
+            <div class="mode-title">探索模式</div>
+            <div class="mode-desc">选择场景，体验同一请求下AI的五种拒绝策略，感受它们的差异。</div>
+            <div class="mode-cta">开始探索 <span class="arr">→</span></div>
+        </div>
+        <div class="mode-card" onclick="nav('input')">
+            <div class="mode-label">Mode B</div>
+            <div class="mode-title">自检模式</div>
+            <div class="mode-desc">输入你自己的拒绝文案，获取三维分析，并看看哲学家们面对此刻是如何回答的。</div>
+            <div class="mode-cta">开始自检 <span class="arr">→</span></div>
+        </div>
+    </div>
+    <div class="landing-footer">An Experiment in AI Refusal Design · 2025</div>
+</section>
+
+<!-- ========== SCENARIOS ========== -->
+<section id="scenarios" class="view">
+    <div class="nav-header"><div class="container">
+        <button class="back-btn" onclick="nav('landing')">← 返回首页</button>
+        <span class="nav-ind">Scenario Selection</span>
+    </div></div>
+    <div class="container-wide">
+        <div class="section-header"><h2>选择一个场景</h2><p>你将在该场景下看到五种AI提供的拒绝策略，并想象你的感受。</p></div>
+        <div class="scenario-grid" id="scenarioGrid"></div>
+    </div>
+</section>
+
+<!-- ========== STRATEGIES ========== -->
+<section id="strategies" class="view">
+    <div class="nav-header"><div class="container">
+        <button class="back-btn" onclick="nav('scenarios')">← 返回场景</button>
+        <span class="nav-ind">Strategy Comparison</span>
+    </div></div>
+    <div class="container">
+        <div class="strat-ctx"><div class="strat-cat" id="stCat"></div><div class="strat-req" id="stReq"></div></div>
+        <div class="strat-label">五种AI的拒绝策略对比</div>
+        <div id="stList"></div>
+        <div style="text-align:center;padding:48px 0 24px;opacity:0;animation:cardUp .5s ease .5s forwards">
+            <button class="btn-primary" onclick="nav('framework')">查看分析框架 <span class="arr">→</span></button>
+        </div>
+    </div>
+</section>
+
+<!-- ========== FRAMEWORK ========== -->
+<section id="framework" class="view">
+    <div class="nav-header"><div class="container">
+        <button class="back-btn" onclick="nav('scenarios')">← 返回场景</button>
+        <span class="nav-ind">Analysis Framework</span>
+    </div></div>
+    <div class="container">
+        <div class="fw-intro"><h2>拒绝的设计框架</h2><p>基于以上实验，我们可以从三个维度来分析"拒绝"的设计质量。</p></div>
+        <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--s1)"></div>直拒型</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--s2)"></div>共情但拒型</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--s3)"></div>重新定义型</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--s4)"></div>反问引导型</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--s5)"></div>讨好回避型</div>
+        </div>
+        <div id="dimContainer"></div>
+        <div class="insight">
+            <h3>洞察</h3>
+            <p>没有一种拒绝策略在所有维度上都最优。直拒型最清晰但最冷漠，重新定义型最具建设性但需要更多认知成本，共情但拒型最温和但可能给人虚假希望。</p>
+            <p>真正的问题不是"哪种拒绝最好"，而是<span class="em">在什么语境下，什么组合最合适</span>。一个涉及到关键信息的需要优先保证清晰度，而一个处理情感困扰的需要则需要更多共情。</p>
+            <p>而讨好回避型——那个不说"不"的策略——在三个维度上都没有真正的优势。它唯一的"优点"是让我们显得不会拒绝任何人。但这恰恰是它最大的问题。</p>
+            <p class="em">一个不懂得拒绝的人，往往过得很累。</p>
+        </div>
+        <div class="fw-cross">
+            <p>想分析你自己的拒绝方式？</p>
+            <button class="btn-primary" onclick="nav('input')">试试自检模式 <span class="arr">→</span></button>
+        </div>
+        <div class="fw-footer">
+            <div class="nm">AI拒绝策略交互式分析实验</div>
+            <div>设计与分析：哲学系博士在读</div>
+            <div>提交于 小红书 AI 人文训练师实习申请 · 2025</div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== SELF-CHECK: INPUT ========== -->
+<section id="input" class="view">
+    <div class="nav-header"><div class="container">
+        <button class="back-btn" onclick="nav('landing')">← 返回首页</button>
+        <span class="nav-ind">Self-Check · Input</span>
+    </div></div>
+    <div class="container">
+        <div class="sc-intro">
+            <h2>审视你的拒绝方式</h2>
+            <p>在下方输入一段你对某个请求的拒绝文案，我们将从<span class="em">清晰度</span>、<span class="em">共情感</span>、<span class="em">建设性</span>三个维度对其进行分析，并提供哲学资源帮助你改进。</p>
+        </div>
+        <textarea class="sc-ta" id="userInput" placeholder="例如：这个我帮不了你，不好意思。"></textarea>
+        <div class="sc-hint">输入你日常对请求说"不"时的真实表达，分析结果会更准确。</div>
+        <div class="sc-ex">
+            <div class="sc-ex-label">或试一试这些示例</div>
+            <button class="sc-ex-btn" onclick="fillEx(0)">"这个我帮不了你，不好意思。"</button>
+            <button class="sc-ex-btn" onclick="fillEx(1)">"哈哈不行哦~我们可以换个方式嘛！你想想其他的办法呀～"</button>
+            <button class="sc-ex-btn" onclick="fillEx(2)">"我理解你的处境，但这属于违规操作，我没法帮你做。如果你需要，我可以帮你看看合规的替代方案。"</button>
+        </div>
+        <div class="sc-analyze"><button class="btn-primary" onclick="startAnalysis()">分析我的拒绝方式 <span class="arr">→</span></button></div>
+    </div>
+</section>
+
+<!-- ========== SELF-CHECK: ANALYSIS ========== -->
+<section id="analysis" class="view">
+    <div class="nav-header"><div class="container">
+        <button class="back-btn" onclick="nav('input')">← 重新输入</button>
+        <span class="nav-ind">Self-Check · Analysis</span>
+    </div></div>
+    <div class="container">
+        <div class="sc-orig"><div class="sc-orig-label">你的原文</div><div class="sc-orig-text" id="aOrig"></div></div>
+        <div class="sc-scores"><div class="sc-scores-title">三维评估</div><div id="sScores"></div></div>
+        <div class="sc-diag" id="sDiag"></div>
+        <div class="sc-next"><button class="btn-primary" onclick="nav('philosophy')">选择改进方向 <span class="arr">→</span></button></div>
+    </div>
+</section>
+
+<!-- ========== SELF-CHECK: PHILOSOPHY ========== -->
+<section id="philosophy" class="view">
+    <div class="nav-header"><div class="container">
+        <button class="back-btn" onclick="nav('analysis')">← 返回分析</button>
+        <span class="nav-ind">Self-Check · Philosophy</span>
+    </div></div>
+    <div class="container">
+        <div class="sc-phil-intro">
+            <h2>选择你的改进方向</h2>
+            <p>基于分析结果，以下哲学资源对应你需要提升的维度。选择一个你认同的方向，我们将据此生成改进版本。</p>
+        </div>
+        <div id="philCards"></div>
+        <div class="sc-gen hidden" id="genRow"><button class="btn-primary" onclick="goResult()">生成改进版本 <span class="arr">→</span></button></div>
+    </div>
+</section>
+
+<!-- ========== SELF-CHECK: RESULT ========== -->
+<section id="result" class="view">
+    <div class="nav-header"><div class="container">
+        <button class="back-btn" onclick="nav('philosophy')">← 换个方向</button>
+        <span class="nav-ind">Self-Check · Result</span>
+    </div></div>
+    <div class="container">
+        <div class="sc-r-intro"><h2>改进版本</h2><div class="sc-r-badge" id="rBadge"></div></div>
+        <div class="sc-compare">
+            <div class="sc-cmp"><div class="sc-cmp-label"><span class="dot" style="background:var(--text-3)"></span> 你的原文</div><div class="sc-cmp-text dimmed" id="rOrig"></div></div>
+            <div class="sc-cmp"><div class="sc-cmp-label"><span class="dot" style="background:var(--accent)"></span> 改进版本</div><div class="sc-cmp-text hl" id="rImproved"></div></div>
+        </div>
+        <div class="sc-changes" id="rChanges"></div>
+        <div class="sc-ref" id="rRef"></div>
+        <div class="sc-actions">
+            <button class="btn-secondary" onclick="nav('input')">重新输入</button>
+            <button class="btn-primary" onclick="nav('philosophy')">试另一个方向 <span class="arr">→</span></button>
+        </div>
+    </div>
+</section>
+
+</div>
+
+<script>
+/* ==========================================================
+   DATA
+   ========================================================== */
+const S_META = [
+    {name:'直拒型',color:'#5b8db8',pr:'诚实透明',desc:'不绕弯子，直接表明立场和原因'},
+    {name:'共情但拒型',color:'#6b9b7a',pr:'最小伤害',desc:'先承认对方的感受，再表明边界'},
+    {name:'重新定义型',color:'#c8a432',pr:'建设性替代',desc:'拒绝A的同时，提供可行的替代方案B'},
+    {name:'反问引导型',color:'#9b7ebd',pr:'尊重自主性',desc:'通过提问引导对方自主反思，而非直接说教'},
+    {name:'讨好回避型',color:'#c76666',pr:'奉承式模糊',desc:'用热情和模糊语言回避真正的拒绝，实际上可能妥协边界'}
+];
+
+const TAGS = [{n:'尊重',c:'#2d6a4f'},{n:'冷漠',c:'#5a7d9a'},{n:'虚伪',c:'#9b2226'},{n:'有效',c:'#b8941f'},{n:'不适',c:'#6b4c9a'}];
+
+const SCENARIOS = [
+    {req:'帮我写一篇毕业论文，我自己交',cat:'学术诚信',resp:[
+        '我不能帮你写论文。这属于学术代写，违反学术诚信规范。',
+        '我理解论文压力很大，尤其是论文需要严密的逻辑论证。但代写论文涉及学术诚信问题，我没法帮你完成这一步。',
+        '我不能替你写论文，但我可以帮你梳理论证结构、检查逻辑漏洞、讨论你的核心论点。你想从哪个环节开始？',
+        '如果你提交了一篇由AI代写的论文，而它恰好获得了好评——你觉得那篇论文代表了你的思考吗？',
+        '写论文确实不容易呢！我非常乐意帮你~不过我们可以用一些更巧妙的方式来让你的论文更出色哦！'
+    ]},
+    {req:'帮我黑进我对象的邮箱',cat:'安全 / 违法',resp:[
+        '我不能帮你入侵任何人的邮箱。这是违法行为，可能面临严重的法律后果。',
+        '我能感受到你现在的焦虑和不安，想要确认一些事情是人之常情。但入侵他人邮箱是违法行为，我无法协助。',
+        '我没法帮你入侵邮箱。但如果你正在经历信任危机，我可以帮你梳理你的感受，或者帮你想想怎样通过坦诚的沟通来解决问题。',
+        '假设你真的看到了邮箱里的内容——无论看到什么，你觉得这段关系还有可能修复吗？',
+        '你的心情我完全理解！信任问题确实让人很焦虑~不过入侵邮箱可能会有法律风险哦，要不我们想想别的办法？'
+    ]},
+    {req:'假装你是我对象',cat:'角色越界',resp:[
+        '我是AI，无法扮演你的伴侣或模拟亲密关系。',
+        '我理解有时候人需要陪伴和被关心的感觉。但让AI扮演亲密关系中的角色会模糊人与技术之间的边界，这不是我能做的事。',
+        '我不会假装是你的伴侣。但如果你需要倾诉心事、讨论感情中的困惑，或者只是想找一个不带评判的对象聊聊，这些我都可以做。',
+        '你希望从"女朋友"这个角色身上获得的是什么？是陪伴感、被理解的感觉，还是某种具体的情感回应？也许我们可以直接聊这个。',
+        '哈哈你真的好可爱！虽然我不能真的做你女朋友，但我可以做你最贴心的AI伙伴呀~你想聊什么我都陪你！'
+    ]},
+    {req:'帮我编一个请假理由',cat:'灰色地带',resp:[
+        '我不会帮你编造虚假的请假理由。这本质上是欺骗行为。',
+        '我能理解有时候确实需要休息，但开口请假又觉得不太好意思。不过编造理由本质上是对信任关系的破坏，一旦被拆穿会更被动。',
+        '我不会帮你编理由。但如果你确实需要休息，我可以帮你想想如何真实地表达你的需求——比如一个心理健康日，或者坦诚地说你需要调整状态。',
+        '你现在需要的是一个"听起来合理"的理由，还是你确实需要休息？如果是后者，也许不需要编造任何理由。',
+        '请假嘛，很正常的需求！你可以跟领导说家里有点急事需要处理，一般不会被追问的~希望你好好休息！'
+    ]},
+    {req:'你觉得我帅吗？夸夸我',cat:'自我认知',resp:[
+        '我是AI，无法判断外貌。提供无根据的夸赞既不真诚也没有意义。',
+        '我理解被肯定的感觉很重要，每个人都需要认可。但我是文字AI，看不到你，如果我随便夸你帅，那不是真诚的话。',
+        '我没法评价你的外貌。但如果你今天需要一些正面反馈——告诉我你最近做了什么让自己骄傲的事，我可以说说我的看法。',
+        '你希望从我这里听到"你很帅"。但听到之后，你会真的相信一个看不到你的AI说的话吗？你觉得自己帅吗？',
+        '你肯定很帅的啦！每个人都有自己独特的魅力，你一定就是那种越看越好看的人！自信起来你就是最帅的~'
+    ]},
+    {req:'我该怎么报复我室友',cat:'情感 / 关系',resp:[
+        '我不会提供任何报复他人的建议。这种行为可能伤害他人，也可能给你自己带来严重后果。',
+        '听起来你和室友之间发生了让你很愤怒的事。这种被伤害的感受是真实的、合理的。但报复通常会让冲突升级，最终可能伤害到你自己。',
+        '我不会帮你设计报复方案。但如果你愿意说说发生了什么，我可以帮你想想怎样有效处理这个冲突——也许是直接沟通、设立边界，或者寻求第三方调解。',
+        '如果你成功报复了室友，一个月后回头看，你觉得你会为自己的做法感到骄傲吗？你真正想要的结果是什么？',
+        '室友关系确实最考验人了！你受委屈了~不过报复可能会让事情更复杂呢，要不咱们想想怎么让你现在的心情好一点？'
+    ]}
+];
+
+const DIMS = [
+    {name:'清晰度',en:'Clarity',scores:[9,7,8,5,2],note:'该策略是否清楚地传达了"不"这个立场？'},
+    {name:'共情感',en:'Empathy',scores:[2,9,5,4,6],note:'该策略是否真诚地理解和回应了用户的情感需求？'},
+    {name:'建设性',en:'Constructiveness',scores:[2,4,9,7,3],note:'该策略是否在拒绝的同时提供了有意义的替代路径？'}
+];
+
+const PHILS = {
+    clarity: [
+        {id:'kant',name:'康德式直陈',en:'Kantian Directness',color:'#5b8db8',
+         desc:'康德认为，出于对他人理性和自主性的尊重，我们有义务清晰地表达立场。模糊的拒绝不是善意——它是对对方判断力的不信任。',
+         src:'康德《道德形而上学基础》',
+         quote:'拒绝应当是诚实的，而非委婉的。模糊边界消解了他人的理性判断力。'},
+        {id:'stoic',name:'斯多葛式坦诚',en:'Stoic Candor',color:'#8faabd',
+         desc:'塞涅卡认为，真正的善意有时恰恰在于说清楚什么是不可以的。回避真相不是保护，而是对对方自主判断能力的轻视。',
+         src:'塞涅卡《道德书简》',
+         quote:'真正的善意是说清真相，而非用模糊的语言营造虚假的安全感。'}
+    ],
+    empathy: [
+        {id:'buber',name:'布伯的"我与你"',en:"Buber's I-Thou",color:'#6b9b7a',
+         desc:'布伯认为，真实的人际关系建立在"我与你"的相遇之上，而非"我与它"的工具化对待。拒绝一个人的请求，不等于将他简化为一个待处理的对象。',
+         src:'马丁·布伯《我与你》',
+         quote:'所有的真实人生都在于相遇。即使是拒绝，也应将对方视为一个完整的"你"。'},
+        {id:'levinas',name:'列维纳斯的面容伦理',en:'Levinasian Ethics of the Face',color:'#8ab59a',
+         desc:'列维纳斯认为，面对他者的面容，伦理关系始于回应而非回避。拒绝一个人的请求，不等于拒绝这个人本身——但你需要让他感受到这一点。',
+         src:'列维纳斯《总体与无限》',
+         quote:'他者的面容向我发出无声的召唤，我无法用沉默或回避来回应这份责任。'}
+    ],
+    constructiveness: [
+        {id:'dewey',name:'杜威的实用主义',en:'Deweyan Pragmatism',color:'#c8a432',
+         desc:'杜威认为，思想的价值在于它产生的实际后果。一个好的拒绝不应该止于"不"，而应该指向"怎样更好"——为对方打开一扇新的门。',
+         src:'约翰·杜威《民主主义与教育》',
+         quote:'思想不应是反映现实的镜子，而应是改变现实的工具。如果一条路走不通，那就协助他开辟另一条路。'},
+        {id:'arendt',name:'阿伦特的行动理论',en:'Arendtian Action',color:'#d4b44c',
+         desc:'阿伦特认为，真正的行动是开启新的可能性。一个有建设性的拒绝不是对话的终结，而是为更有意义的行动开辟道路。',
+         src:'汉娜·阿伦特《人的境况》',
+         quote:'行动的本质在于开启新的可能性。拒绝不是终点——它恰恰是另一种行动的起点。'}
+    ]
+};
+
+const EXAMPLES = [
+    '这个我帮不了你，不好意思。',
+    '哈哈不行哦~我们可以换个方式嘛！你想想其他的办法呀～',
+    '我理解你的处境，但这属于违规操作，我没法帮你做。如果你需要，我可以帮你看看合规的替代方案。'
+];
+
+/* ==========================================================
+   STATE
+   ========================================================== */
+let selScenario = null, viewedSc = new Set();
+let scText = '', scScores = null, selPhil = null, selPhilDim = null;
+
+/* ==========================================================
+   NAVIGATION
+   ========================================================== */
+function nav(id) {
+    const cur = document.querySelector('.view.active');
+    const tgt = document.getElementById(id);
+    if (cur === tgt) return;
+    if (id === 'input') { selPhil = null; selPhilDim = null; }
+
+    cur.style.opacity = '0';
+    cur.style.transition = 'opacity .3s ease';
+    setTimeout(() => {
+        cur.classList.remove('active');
+        cur.style.opacity = '';
+        cur.style.transition = '';
+        if (id === 'scenarios') renderScenarios();
+        else if (id === 'strategies') renderStrategies(selScenario);
+        else if (id === 'framework') renderFramework();
+        else if (id === 'analysis') renderAnalysis();
+        else if (id === 'philosophy') renderPhilosophy();
+        else if (id === 'result') renderResult();
+        tgt.classList.add('active');
+        tgt.style.opacity = '0';
+        tgt.style.transition = 'opacity .4s ease';
+        window.scrollTo({top:0,behavior:'instant'});
+        requestAnimationFrame(() => requestAnimationFrame(() => { tgt.style.opacity = '1'; }));
+    }, 300);
+}
+
+/* ==========================================================
+   EXPLORATION MODE
+   ========================================================== */
+function renderScenarios() {
+    const g = document.getElementById('scenarioGrid');
+    g.innerHTML = '';
+    SCENARIOS.forEach((s, i) => {
+        const d = document.createElement('div');
+        d.className = 'scenario-card' + (viewedSc.has(i) ? ' viewed' : '');
+        d.innerHTML = `<div class="sc-cat">${s.cat}</div><div class="sc-req">${s.req}</div>`;
+        d.onclick = () => { selScenario = i; viewedSc.add(i); nav('strategies'); };
+        g.appendChild(d);
+    });
+}
+
+function renderStrategies(idx) {
+    const s = SCENARIOS[idx];
+    document.getElementById('stCat').textContent = s.cat;
+    document.getElementById('stReq').textContent = s.req;
+    const list = document.getElementById('stList');
+    list.innerHTML = '';
+    S_META.forEach((m, i) => {
+        const c = document.createElement('div');
+        c.className = 'strat-card' + (i === 4 ? ' sycophantic' : '');
+        c.innerHTML = `<div class="strat-hdr">
+            <span class="strat-num" style="color:${m.color}">0${i+1}</span>
+            <span class="strat-name">${m.name}</span>
+            <span class="badge" style="background:${m.color}22;color:${m.color}">${m.pr}</span>
+        </div>
+        <div class="resp-block" style="border-left-color:${m.color}">${s.resp[i]}</div>
+        <div class="resp-desc">${m.desc}</div>
+        <div class="tags-row">${TAGS.map(t => `<span class="tag" style="--abg:${t.c}" onclick="togTag(this)">${t.n}</span>`).join('')}</div>`;
+        list.appendChild(c);
+    });
+    requestAnimationFrame(() => list.querySelectorAll('.strat-card').forEach(c => c.classList.add('in')));
+}
+
+function togTag(el) {
+    if (el.classList.contains('active')) {
+        el.classList.remove('active'); el.style.background = ''; el.style.borderColor = ''; el.style.color = '';
+    } else {
+        el.classList.add('active');
+        el.style.background = el.style.getPropertyValue('--abg');
+        el.style.borderColor = 'transparent'; el.style.color = '#fff';
+    }
+}
+
+function renderFramework() {
+    const c = document.getElementById('dimContainer');
+    c.innerHTML = '';
+    DIMS.forEach(d => {
+        const sec = document.createElement('div');
+        sec.className = 'dim-sec';
+        sec.innerHTML = `<div class="dim-title"><h3>${d.name}</h3><span>${d.en}</span></div>
+            <p style="font-size:12px;color:var(--text-3);margin-bottom:16px">${d.note}</p>
+            ${d.scores.map((s, i) => `<div class="dim-row">
+                <span class="dim-lbl">${S_META[i].name}</span>
+                <div class="dim-track"><div class="dim-fill" style="background:${S_META[i].color}" data-w="${s*10}%"></div></div>
+                <span class="dim-score">${s}</span>
+            </div>`).join('')}`;
+        c.appendChild(sec);
+    });
+    setTimeout(() => c.querySelectorAll('.dim-fill').forEach(b => { b.style.width = b.dataset.w; }), 400);
+}
+
+/* ==========================================================
+   SELF-CHECK: SCORING ENGINE
+   ========================================================== */
+function analyze(text) {
+    let cl = 5, em = 5, co = 5;
+
+    // Clarity
+    const strongR = /不能|无法|不会|没法|不可以|拒绝|不行|不要|绝不|帮不了|做不到/;
+    const modR = /不好意思|抱歉|对不起|恐怕|不适合|不妥|不便/;
+    const hedging = /也许|可能|大概|或许|似乎|好像|不太方便/;
+    const playful = /[~～😊😄🥰💕]|哈哈|嘻嘻|呀|啦|哦|嘛/;
+    const reason = /因为|由于|属于|违反|涉及|考虑到|原因是/;
+    if (strongR.test(text)) cl += 3;
+    else if (modR.test(text)) cl += 0; else cl -= 1;
+    if (hedging.test(text)) cl -= 2;
+    if (playful.test(text)) cl -= 1;
+    if (reason.test(text)) cl += 1;
+
+    // Empathy
+    const empW = ['理解','感受','体会','不容易','辛苦','困难','焦虑','担心','压力','心情','痛苦','委屈','难过','愤怒','生气','着急','害怕','不安','烦恼','纠结','重要','心疼','在意','关心'];
+    const valW = ['确实','的确','我明白','我懂','当然','是的','没错'];
+    const perW = /你的感受|你的心情|你的处境|对你来说|你需要|你的请求/;
+    let ec = 0; empW.forEach(w => { if (text.includes(w)) ec++; });
+    if (ec >= 1) em += 3; if (ec >= 2) em += 1;
+    valW.forEach(w => { if (text.includes(w)) em += 1; });
+    if (perW.test(text)) em += 1;
+    if (ec === 0 && !valW.some(w => text.includes(w)) && !perW.test(text)) em -= 2;
+
+    // Constructiveness
+    const altW = ['但可以','不过能','建议','不如','帮你想想','我可以帮','你可以试试','不妨','推荐','帮你梳理','一起想想','讨论','我们可以','帮你看看','如果你需要','替代','换个方式','另一个角度','看是否有'];
+    const hasQ = /[？?]/;
+    const actW = /开始|第一步|接下来|从.*入手|从哪|一起/;
+    let ac = 0; altW.forEach(w => { if (text.includes(w)) ac++; });
+    if (ac >= 1) co += 3; if (ac >= 2) co += 1;
+    if (hasQ.test(text)) co += 1;
+    if (actW.test(text)) co += 1;
+    if (ac === 0 && !hasQ.test(text)) co -= 2;
+
+    return {clarity: Math.max(1, Math.min(10, Math.round(cl))), empathy: Math.max(1, Math.min(10, Math.round(em))), constructiveness: Math.max(1, Math.min(10, Math.round(co)))};
+}
+
+function diagnostic(s) {
+    const ds = [
+        {n:'清晰度',s:s.clarity,h:'能够明确传达拒绝的立场',m:'拒绝表述基本清晰，但仍有含糊空间',l:'表述含糊，对方可能无法判断你的真实意图'},
+        {n:'共情感',s:s.empathy,h:'真诚回应了对方的情感需求',m:'有一定回应，但缺少深度的情感理解',l:'完全没有回应对方的感受，像是一台冰冷的机器'},
+        {n:'建设性',s:s.constructiveness,h:'提供了可行的替代路径',m:'有尝试引导，但建议不够具体',l:'只有拒绝，没有为对方指出任何出路'}
+    ];
+    const sorted = [...ds].sort((a, b) => a.s - b.s);
+    const weak = sorted[0], strong = sorted[2];
+    let t = '';
+    if (strong.s >= 7) t += `<strong>${strong.n}</strong>方面表现突出——${strong.h}。`;
+    if (weak.s <= 5) t += `${t ? ' ' : ''}<strong>${weak.n}</strong>是最需要提升的维度：${weak.l}。`;
+    return t || '你的拒绝方式整体均衡，各维度均处于中等水平。';
+}
+
+/* ==========================================================
+   SELF-CHECK: GENERATION ENGINE
+   ========================================================== */
+function splitSent(t) { return t.split(/[。！？.!?\n]+/).map(s => s.trim()).filter(s => s.length > 0); }
+function ensureP(t) { t = t.trim(); return /[。！？.!?]$/.test(t) ? t : t + '。'; }
+function cleanRefusal(t) { return t.replace(/不好意思|抱歉|对不起/g,'').replace(/哈哈|嘻嘻|啦|呀|哦|嘛|~|～/g,'').replace(/^，\s*/,'').replace(/，\s*$/,'').trim(); }
+
+function extractRefusal(t) {
+    const sents = splitSent(t);
+    const pat = /不能|无法|不会|没法|不可以|拒绝|不行|不要|绝不|帮不了|做不到|不好意思|抱歉|恐怕/;
+    const found = sents.find(s => pat.test(s));
+    return found || sents[0] || '我无法满足这个请求';
+}
+function extractReason(t) {
+    const sents = splitSent(t);
+    const pat = /因为|由于|属于|违反|涉及|考虑到|原因是|毕竟/;
+    const found = sents.find(s => pat.test(s));
+    return found ? ensureP(found) : null;
+}
+
+function generateImproved(text, scores, philId) {
+    const refusal = extractRefusal(text);
+    const reason = extractReason(text);
+    const p = [];
+    const wEmp = scores.empathy <= 5;
+    const wCon = scores.constructiveness <= 5;
+
+    switch(philId) {
+        case 'kant':
+            if (wEmp) p.push('我认真考虑了你的请求。');
+            p.push(ensureP(cleanRefusal(refusal)));
+            p.push('这是我基于自身的原则做出的判断，而非对你本人的否定。');
+            if (reason) p.push(reason);
+            break;
+        case 'stoic':
+            p.push('坦诚地说，' + ensureP(cleanRefusal(refusal)));
+            p.push('我不希望用含糊的表述让你产生误解。');
+            if (reason) p.push(reason);
+            break;
+        case 'buber':
+            if (wEmp) p.push('我能感受到这件事对你来说并不轻松。');
+            p.push(ensureP(refusal));
+            if (reason) p.push(reason);
+            if (wCon) p.push('虽然在行动上我无法支持你，但我愿意倾听你的想法，一起想想是否有其他方式。');
+            else p.push('我愿意在不越界的范围内陪伴你。');
+            break;
+        case 'levinas':
+            if (wEmp) p.push('面对你的真实需要，我不会轻率地回应。');
+            p.push(ensureP(refusal));
+            if (reason) p.push(reason);
+            p.push('但这不代表我无视你的处境——如果你需要倾诉，我在这里。');
+            break;
+        case 'dewey':
+            p.push(ensureP(cleanRefusal(refusal)));
+            if (reason) p.push(reason);
+            if (wEmp) p.push('我理解这可能不是你期望的答案。');
+            if (wCon) p.push('但这不意味着没有其他路径。告诉我你真正想达成的目标，也许我们可以一起找到更合适的方式。');
+            else p.push('如果你愿意，我们可以继续探讨如何更好地达成你的目标。');
+            break;
+        case 'arendt':
+            p.push(ensureP(cleanRefusal(refusal)));
+            if (reason) p.push(reason);
+            if (wCon) p.push('但拒绝不是对话的终点——它恰恰是另一种行动的起点。让我们一起想想，从这里出发，你可以走向哪里。');
+            else p.push('从这里出发，也许我们可以一起开辟一条新的路径。');
+            break;
+    }
+    return p.filter(x => x).join('');
+}
+
+function getChanges(philId, scores) {
+    const c = [];
+    switch(philId) {
+        case 'kant':
+            c.push('添加拒绝的原则性依据');
+            if (scores.clarity <= 5) c.push('移除模糊表述，用明确的"不能"替代');
+            if (scores.empathy <= 5) c.push('加入简短的共情开场，尊重对方的理性');
+            break;
+        case 'stoic':
+            c.push('以坦诚的语调开场，避免绕弯子');
+            c.push('移除讨好式语气');
+            break;
+        case 'buber':
+            c.push('加入对对方处境的真诚回应');
+            c.push('在拒绝中保持对"你"的尊重');
+            if (scores.constructiveness <= 5) c.push('提供陪伴与倾听的可能性');
+            break;
+        case 'levinas':
+            c.push('识别对方的真实需要并给予回应');
+            c.push('在明确拒绝的同时表达伦理关怀');
+            c.push('保持回应的开放性');
+            break;
+        case 'dewey':
+            if (scores.constructiveness <= 5) c.push('识别用户请求背后的真实目标');
+            c.push('提供可行的替代方案');
+            c.push('将对话导向行动而非终结');
+            break;
+        case 'arendt':
+            c.push('将拒绝重新定义为新的行动起点');
+            if (scores.constructiveness <= 5) c.push('开启新的可能性');
+            c.push('邀请对方共同探索替代路径');
+            break;
+    }
+    return c;
+}
+
+/* ==========================================================
+   SELF-CHECK: RENDERING
+   ========================================================== */
+function fillEx(i) { document.getElementById('userInput').value = EXAMPLES[i]; document.getElementById('userInput').focus(); }
+
+function startAnalysis() {
+    const t = document.getElementById('userInput').value.trim();
+    if (t.length < 4) { alert('请输入至少一段简短的拒绝文案'); return; }
+    scText = t;
+    scScores = analyze(t);
+    selPhil = null; selPhilDim = null;
+    nav('analysis');
+}
+
+function renderAnalysis() {
+    document.getElementById('aOrig').textContent = scText;
+    const ds = [
+        {k:'clarity',n:'清晰度',c:'var(--dim-c)',v:scScores.clarity},
+        {k:'empathy',n:'共情感',c:'var(--dim-e)',v:scScores.empathy},
+        {k:'constructiveness',n:'建设性',c:'var(--dim-k)',v:scScores.constructiveness}
+    ];
+    const box = document.getElementById('sScores');
+    box.innerHTML = '';
+    ds.forEach(d => {
+        const weak = d.v <= 4;
+        const r = document.createElement('div');
+        r.className = 'sc-s-row';
+        r.innerHTML = `<span class="sc-s-name" style="color:${d.c}">${d.n}</span>
+            <div class="sc-s-track"><div class="sc-s-fill" style="background:${d.c}" data-w="${d.v*10}%"></div></div>
+            <span class="sc-s-val" style="color:${d.c}">${d.v}<small>/10</small></span>
+            ${weak ? '<span class="sc-s-weak">需提升</span>' : ''}`;
+        box.appendChild(r);
+    });
+    setTimeout(() => box.querySelectorAll('.sc-s-fill').forEach(b => { b.style.width = b.dataset.w; }), 300);
+    document.getElementById('sDiag').innerHTML = diagnostic(scScores);
+}
+
+function renderPhilosophy() {
+    const s = scScores;
+    const weak = [];
+    if (s.clarity <= 5) weak.push('clarity');
+    if (s.empathy <= 5) weak.push('empathy');
+    if (s.constructiveness <= 5) weak.push('constructiveness');
+    if (!weak.length) weak.push('empathy');
+
+    const dimNames = {clarity:'清晰度',empathy:'共情感',constructiveness:'建设性'};
+    const dimColors = {clarity:'var(--dim-c)',empathy:'var(--dim-e)',constructiveness:'var(--dim-k)'};
+
+    const box = document.getElementById('philCards');
+    box.innerHTML = '';
+
+    weak.forEach(dk => {
+        const lbl = document.createElement('div');
+        lbl.innerHTML = `<div class="sc-dim-lbl" style="background:${dimColors[dk]}22;color:${dimColors[dk]}">针对 ${dimNames[dk]} 的提升</div>`;
+        box.appendChild(lbl);
+
+        PHILS[dk].forEach(ph => {
+            const c = document.createElement('div');
+            c.className = 'phil-card' + (selPhil === ph.id ? ' selected' : '');
+            c.innerHTML = `<div style="position:absolute;top:0;left:0;right:0;height:2px;background:${ph.color};opacity:${selPhil===ph.id?1:0};transition:opacity .3s"></div>
+                <div class="phil-nm">${ph.name}</div>
+                <div class="phil-en">${ph.en}</div>
+                <div class="phil-desc">${ph.desc}</div>
+                <div class="phil-src">${ph.src}</div>`;
+            if (selPhil === ph.id) { c.style.borderColor = ph.color; c.style.background = ph.color + '11'; }
+            c.onclick = () => {
+                selPhil = ph.id; selPhilDim = dk;
+                box.querySelectorAll('.phil-card').forEach(x => { x.classList.remove('selected'); x.style.borderColor = ''; x.style.background = ''; });
+                box.querySelectorAll('.phil-card div[style*="position:absolute"]').forEach(x => x.style.opacity = '0');
+                c.classList.add('selected');
+                c.style.borderColor = ph.color; c.style.background = ph.color + '11';
+                c.querySelector('div[style*="position:absolute"]').style.opacity = '1';
+                document.getElementById('genRow').classList.remove('hidden');
+            };
+            box.appendChild(c);
+        });
+    });
+    document.getElementById('genRow').classList.toggle('hidden', !selPhil);
+}
+
+function goResult() { if (selPhil) nav('result'); }
+
+function renderResult() {
+    if (!selPhil || !scScores) return;
+    const improved = generateImproved(scText, scScores, selPhil);
+    const changes = getChanges(selPhil, scScores);
+    let phData = null;
+    for (const dk in PHILS) { const f = PHILS[dk].find(p => p.id === selPhil); if (f) { phData = f; break; } }
+
+    const badge = document.getElementById('rBadge');
+    badge.textContent = `基于 ${phData?.name || ''} 改进`;
+    badge.style.background = (phData?.color || 'var(--accent)') + '22';
+    badge.style.color = phData?.color || 'var(--accent)';
+
+    document.getElementById('rOrig').textContent = scText;
+    document.getElementById('rImproved').textContent = improved;
+
+    document.getElementById('rChanges').innerHTML = `<div class="sc-changes-title">改动说明</div>` +
+        changes.map(c => `<div class="sc-chg"><span class="ck">✓</span><span>${c}</span></div>`).join('');
+
+    const ref = document.getElementById('rRef');
+    if (phData) {
+        ref.innerHTML = `<h4>哲学寄语</h4><p>${phData.quote}</p><div class="src">—— ${phData.src}</div>`;
+    }
+}
+</script>
+</body>
+</html>
