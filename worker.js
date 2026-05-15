@@ -58,7 +58,7 @@ export default {
     const url = new URL(request.url);
 
     if (request.method === 'OPTIONS') return new Response(null, { headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' } });
-    if (request.method === 'GET' && url.pathname === '/') return new Response(HTML, { headers: { 'Content-Type': 'text/html;charset=utf-8' } });  
+    
     if (request.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
 
 
