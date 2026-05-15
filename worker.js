@@ -320,6 +320,14 @@ export default {
 
     try {
       const body = await request.json();
+    if (url.pathname === '/debug') {
+      return json({
+        hasKey: !!env.DEEPSEEK_API_KEY,
+        keyPrefix: env.DEEPSEEK_API_KEY ? env.DEEPSEEK_API_KEY.substring(0, 8) : 'NOT FOUND',
+        model: env.DEEPSEEK_MODEL || 'NOT FOUND',
+        allKeys: Object.keys(env)
+      });
+    }
 
       if (url.pathname === '/api/analyze') {
         if (!body.text || body.text.trim().length < 2) return json({ error: '请输入内容' }, 400);
